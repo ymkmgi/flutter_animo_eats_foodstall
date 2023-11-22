@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "721695696296",
+    "firebase_url": "https://flutter-animo-eats-d4b36-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "flutter-animo-eats-d4b36",
+    "storage_bucket": "flutter-animo-eats-d4b36.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:721695696296:android:7a0f3d33804652788ca99d",
+        "android_client_info": {
+          "package_name": "com.bjkinc.animo_eats"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBLPrwbNmDWo486rcfvScoA4FTMd_XvN1E"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
