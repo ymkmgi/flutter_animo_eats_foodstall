@@ -61,7 +61,7 @@ class _SetLocationScreenState extends State<SetLocationScreen> {
 
                   FirestoreDatabase db = FirestoreDatabase();
                   await db.addDocument(
-                    'users',
+                    'vendors',
                     User.fromHive().toMap(),
                   );
                   if (mounted) {

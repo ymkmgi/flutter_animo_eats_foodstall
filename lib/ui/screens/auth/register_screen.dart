@@ -188,10 +188,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               text: "Create Account",
                               onTap: () {
                                 // print email and password
-                                String email = _emailController.text.trim();
-                                String password = _passwordController.text;
+                                debugPrint(_emailController.text.trim());
+                                debugPrint(_passwordController.text);
 
-                                if (email.isEmpty) {
+                                // Validate
+                                if (_emailController.text.trim().isEmpty) {
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     const SnackBar(
                                       backgroundColor: AppColors.errorColor,
@@ -200,17 +201,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   );
                                   return;
                                 }
-                                if (!email.endsWith("@dlsud.edu.ph")) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                      backgroundColor: AppColors.errorColor,
-                                      content: Text(
-                                          "Please use a valid DLSUD email"),
-                                    ),
-                                  );
-                                  return;
-                                }
-                                if (password.isEmpty) {
+                                if (_passwordController.text.isEmpty) {
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     const SnackBar(
                                       backgroundColor: AppColors.errorColor,
