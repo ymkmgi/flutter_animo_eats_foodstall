@@ -1,7 +1,26 @@
+import 'package:animo_eats/models/restaurant.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class FirestoreDatabase {
   final FirebaseFirestore _firebaseFirestore = FirebaseFirestore.instance;
+
+  Future<void> addRestaurantWithVendorReference(String vendorId,
+      Map<String, dynamic> vendorData, Restaurant restaurant) async {
+    DocumentReference vendorRef =
+        _firebaseFirestore.collection('vendors').doc(vendorId);
+    Map<String, dynamic> restaurantData = restaurant.toMap();
+    restaurantData['vendorReference'] = vendorRef;
+
+    await _firebaseFirestore
+        .collection('restaurants')
+        .doc(vendorId)
+        .set(restaurantData);
+  }
+
+  Future<void> addDocumentWithId(
+      String collectionPath, String docId, Map<String, dynamic> data) async {
+    await _firebaseFirestore.collection(collectionPath).doc(docId).set(data);
+  }
 
   Future<QuerySnapshot> getCollection(String collectionName) async {
     return await _firebaseFirestore.collection(collectionName).get();

@@ -1,3 +1,7 @@
+import 'package:animo_eats/models/restaurant.dart';
+import 'package:animo_eats/models/vendor.dart';
+import 'package:animo_eats/services/firestore_db.dart';
+import 'package:animo_eats/ui/widgets/loading_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:animo_eats/ui/widgets/buttons/back_button.dart';
@@ -22,16 +26,18 @@ class _RegisterProcessScreenState extends State<RegisterProcessScreen> {
   // form key
   final _formKey = GlobalKey<FormState>();
   // controllers for form fields
-  final TextEditingController _firstNameController = TextEditingController();
-  final TextEditingController _lastNameController = TextEditingController();
+  final TextEditingController _nameController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
+  final TextEditingController _descriptionController = TextEditingController();
+  final TextEditingController _locationController = TextEditingController();
 
   @override
   void initState() {
     // set data to form fields
-    _firstNameController.text = box.get('firstName', defaultValue: '');
-    _lastNameController.text = box.get('lastName', defaultValue: '');
+    _nameController.text = box.get('name', defaultValue: '');
     _phoneController.text = box.get('phone', defaultValue: '');
+    _descriptionController.text = box.get('description', defaultValue: '');
+    _locationController.text = box.get('location', defaultValue: '');
     super.initState();
   }
 
@@ -53,7 +59,7 @@ class _RegisterProcessScreenState extends State<RegisterProcessScreen> {
               padding: const EdgeInsets.only(bottom: 60),
               child: PrimaryButton(
                 text: "Next",
-                onTap: () {
+                onTap: () async {
                   // validate form
                   if (!_formKey.currentState!.validate()) {
                     return;
@@ -61,11 +67,36 @@ class _RegisterProcessScreenState extends State<RegisterProcessScreen> {
 
                   // save data to hive
                   var box = Hive.box('myBox');
-                  box.put('firstName', _firstNameController.text.trim());
-                  box.put('lastName', _lastNameController.text.trim());
+                  box.put('name', _nameController.text.trim());
                   box.put('phone', _phoneController.text.trim());
-                  // navigate to next page
-                  Navigator.pushNamed(context, '/register/set-payment');
+                  box.put('description', _descriptionController.text.trim());
+                  box.put('location', _locationController.text.trim());
+
+                  showDialog(
+                    context: context,
+                    barrierDismissible: false,
+                    builder: (_) => const LoadingIndicator(),
+                  );
+
+                  FirestoreDatabase db = FirestoreDatabase();
+                  Vendor vendor = Vendor.fromHive();
+                  Restaurant restaurant = Restaurant.fromHive();
+
+                  // Add Vendor Document
+                  await db.addDocumentWithId(
+                    'vendors',
+                    vendor.name, // This is the document ID you want to set
+                    vendor.toMap(),
+                  );
+
+                  // Add Restaurant Document with Vendor Reference and Restaurant fields
+                  await db.addRestaurantWithVendorReference(
+                      vendor.name, vendor.toMap(), restaurant);
+
+                  if (mounted) {
+                    Navigator.pop(context);
+                    Navigator.pushNamed(context, '/register/success');
+                  }
                 },
               ),
             ),
@@ -94,28 +125,30 @@ class _RegisterProcessScreenState extends State<RegisterProcessScreen> {
                     style: CustomTextStyle.size14Weight400Text(),
                   ),
                   const SizedBox(height: 20),
-                  // form fields, first name, last name, mobile number
+
+                  // form fields, store name, mobile number, location, and description
                   Form(
                     key: _formKey,
                     autovalidateMode: AutovalidateMode.onUserInteraction,
                     child: Column(
                       children: [
+                        // Store Name
                         Container(
                           decoration: BoxDecoration(
                             boxShadow: [AppStyles.boxShadow7],
                           ),
                           child: TextFormField(
-                            controller: _firstNameController,
+                            controller: _nameController,
                             validator: (value) {
                               if (value!.isEmpty) {
-                                return "First name is required";
+                                return "Store name is required";
                               }
                               return null;
                             },
                             decoration: InputDecoration(
                               fillColor: AppColors().cardColor,
                               filled: true,
-                              hintText: "First name",
+                              hintText: "Store name",
                               hintStyle: CustomTextStyle.size14Weight400Text(
                                 AppColors().secondaryTextColor,
                               ),
@@ -131,37 +164,8 @@ class _RegisterProcessScreenState extends State<RegisterProcessScreen> {
                           ),
                         ),
                         const SizedBox(height: 20),
-                        Container(
-                          decoration: BoxDecoration(
-                            boxShadow: [AppStyles.boxShadow7],
-                          ),
-                          child: TextFormField(
-                            controller: _lastNameController,
-                            validator: (value) {
-                              if (value!.isEmpty) {
-                                return "Last name is required";
-                              }
-                              return null;
-                            },
-                            decoration: InputDecoration(
-                              fillColor: AppColors().cardColor,
-                              filled: true,
-                              hintText: "Last name",
-                              hintStyle: CustomTextStyle.size14Weight400Text(
-                                AppColors().secondaryTextColor,
-                              ),
-                              contentPadding: const EdgeInsets.only(
-                                left: 20,
-                              ),
-                              enabledBorder: AppStyles().defaultEnabledBorder,
-                              focusedBorder: AppStyles.defaultFocusedBorder(),
-                              errorBorder: AppStyles.defaultErrorBorder,
-                              focusedErrorBorder:
-                                  AppStyles.defaultFocusedErrorBorder,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 20),
+
+                        // Phone Number
                         Container(
                           decoration: BoxDecoration(
                             boxShadow: [AppStyles.boxShadow7],
@@ -179,6 +183,72 @@ class _RegisterProcessScreenState extends State<RegisterProcessScreen> {
                               fillColor: AppColors().cardColor,
                               filled: true,
                               hintText: "Mobile number",
+                              hintStyle: CustomTextStyle.size14Weight400Text(
+                                AppColors().secondaryTextColor,
+                              ),
+                              contentPadding: const EdgeInsets.only(
+                                left: 20,
+                              ),
+                              enabledBorder: AppStyles().defaultEnabledBorder,
+                              focusedBorder: AppStyles.defaultFocusedBorder(),
+                              errorBorder: AppStyles.defaultErrorBorder,
+                              focusedErrorBorder:
+                                  AppStyles.defaultFocusedErrorBorder,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+
+                        // Location
+                        Container(
+                          decoration: BoxDecoration(
+                            boxShadow: [AppStyles.boxShadow7],
+                          ),
+                          child: TextFormField(
+                            controller: _locationController,
+                            validator: (value) {
+                              if (value!.isEmpty) {
+                                return "Location is required";
+                              }
+                              return null;
+                            },
+                            decoration: InputDecoration(
+                              fillColor: AppColors().cardColor,
+                              filled: true,
+                              hintText: "Location",
+                              hintStyle: CustomTextStyle.size14Weight400Text(
+                                AppColors().secondaryTextColor,
+                              ),
+                              contentPadding: const EdgeInsets.only(
+                                left: 20,
+                              ),
+                              enabledBorder: AppStyles().defaultEnabledBorder,
+                              focusedBorder: AppStyles.defaultFocusedBorder(),
+                              errorBorder: AppStyles.defaultErrorBorder,
+                              focusedErrorBorder:
+                                  AppStyles.defaultFocusedErrorBorder,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+
+                        // Description
+                        Container(
+                          decoration: BoxDecoration(
+                            boxShadow: [AppStyles.boxShadow7],
+                          ),
+                          child: TextFormField(
+                            controller: _descriptionController,
+                            validator: (value) {
+                              if (value!.isEmpty) {
+                                return "Description is required";
+                              }
+                              return null;
+                            },
+                            decoration: InputDecoration(
+                              fillColor: AppColors().cardColor,
+                              filled: true,
+                              hintText: "Description",
                               hintStyle: CustomTextStyle.size14Weight400Text(
                                 AppColors().secondaryTextColor,
                               ),

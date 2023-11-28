@@ -62,7 +62,7 @@ class RegisterSuccessScreen extends StatelessWidget {
             child: Padding(
               padding: const EdgeInsets.only(bottom: 60),
               child: PrimaryButton(
-                text: "Try Order",
+                text: "Continue",
                 onTap: () {
                   Navigator.pushNamedAndRemoveUntil(
                     context,

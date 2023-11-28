@@ -5,7 +5,7 @@ import 'package:animo_eats/ui/screens/set_location_map_screen.dart';
 import 'package:animo_eats/ui/widgets/buttons/back_button.dart';
 import 'package:animo_eats/ui/widgets/buttons/default_button.dart';
 import 'package:animo_eats/ui/widgets/buttons/primary_button.dart';
-import 'package:animo_eats/models/user.dart';
+import 'package:animo_eats/models/vendor.dart';
 import 'package:animo_eats/ui/widgets/loading_indicator.dart';
 import 'package:animo_eats/utils/app_colors.dart';
 import 'package:animo_eats/utils/app_styles.dart';
@@ -62,7 +62,7 @@ class _SetLocationScreenState extends State<SetLocationScreen> {
                   FirestoreDatabase db = FirestoreDatabase();
                   await db.addDocument(
                     'vendors',
-                    User.fromHive().toMap(),
+                    Vendor.fromHive().toMap(),
                   );
                   if (mounted) {
                     Navigator.pop(context);

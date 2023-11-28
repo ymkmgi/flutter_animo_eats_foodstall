@@ -3,17 +3,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:animo_eats/bloc/food/food_bloc.dart';
 import 'package:animo_eats/bloc/order/order_bloc.dart';
-import 'package:animo_eats/bloc/restaurant/restaurant_bloc.dart';
 import 'package:animo_eats/bloc/theme/theme_bloc.dart';
 import 'package:animo_eats/models/food.dart';
-import 'package:animo_eats/models/restaurant.dart';
 import 'package:animo_eats/repositories/order_repository.dart';
 import 'package:animo_eats/ui/screens/chat/chat_list_screen.dart';
 import 'package:animo_eats/ui/screens/home/profile_screen.dart';
 import 'package:animo_eats/ui/screens/order/order_list_screen.dart';
 import 'package:animo_eats/ui/widgets/items/food_item.dart';
-import 'package:animo_eats/ui/widgets/items/restaurant_item.dart';
-import 'package:animo_eats/ui/widgets/search_filter_widget.dart';
 import 'package:animo_eats/utils/app_colors.dart';
 import 'package:animo_eats/utils/app_styles.dart';
 import 'package:animo_eats/utils/custom_text_style.dart';
@@ -28,23 +24,11 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
 
-  final TextEditingController _searchController = TextEditingController();
-
-  final List<Restaurant> _restaurants = [];
-  final int _restaurantLimit = 2;
-
   final List<Food> _foods = [];
   final int _foodLimit = 5;
 
   @override
   void initState() {
-    BlocProvider.of<RestaurantBloc>(context).add(
-      LoadRestaurants(
-        limit: _restaurantLimit,
-        lastDocument: null,
-      ),
-    );
-
     BlocProvider.of<FoodBloc>(context).add(
       LoadFoods(
         limit: _foodLimit,
@@ -225,160 +209,12 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 18),
-                  SearchFilterWidget(
-                    searchController: _searchController,
-                    onChanged: (value) {},
-                    onTap: () {},
-                  ),
-                  const SizedBox(height: 20),
-                  Container(
-                    width: double.infinity,
-                    height: 150,
-                    decoration: BoxDecoration(
-                      image: const DecorationImage(
-                        image: AssetImage("assets/png/voucher-1.png"),
-                        fit: BoxFit.cover,
-                      ),
-                      gradient: LinearGradient(
-                        colors: AppColors.primaryGradient,
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
-                      borderRadius: AppStyles.defaultBorderRadius,
-                      boxShadow: [AppStyles().largeBoxShadow],
-                    ),
-                    child: Row(
-                      children: [
-                        Expanded(child: Container()),
-                        const SizedBox(width: 20),
-                        Expanded(
-                          child: Column(
-                            // text and button
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                "Special Offer for\nthis month",
-                                style: CustomTextStyle.size16Weight500Text(
-                                  Colors.white,
-                                ),
-                              ),
-                              const SizedBox(height: 10),
-                              TextButton(
-                                onPressed: () {
-                                  Navigator.pushNamed(
-                                    context,
-                                    "/vouchers",
-                                  );
-                                },
-                                style: TextButton.styleFrom(
-                                  backgroundColor: Colors.white,
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 20,
-                                    vertical: 10,
-                                  ),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: AppStyles.defaultBorderRadius,
-                                  ),
-                                ),
-                                child: ShaderMask(
-                                  shaderCallback: (rect) {
-                                    return LinearGradient(
-                                      colors: AppColors.primaryGradient,
-                                      begin: Alignment.topLeft,
-                                      end: Alignment.bottomRight,
-                                    ).createShader(rect);
-                                  },
-                                  child: Text(
-                                    "Buy Now",
-                                    style: CustomTextStyle.size14Weight400Text(
-                                      Colors.white,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
                   const SizedBox(height: 20),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        "Popular Restaurants",
-                        style: CustomTextStyle.size16Weight400Text(),
-                      ),
-                      TextButton(
-                        onPressed: () {
-                          Navigator.pushNamed(context, "/restaurants");
-                        },
-                        style: TextButton.styleFrom(),
-                        child: Text(
-                          "View More",
-                          style: CustomTextStyle.size14Weight400Text(
-                            AppColors.secondaryDarkColor,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 10),
-                  BlocBuilder<RestaurantBloc, RestaurantState>(
-                    builder: (context, state) {
-                      if (state is RestaurantsLoading) {
-                        return const Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Expanded(
-                              child: RestaurantItemShimmer(),
-                            ),
-                            SizedBox(width: 20),
-                            Expanded(
-                              child: RestaurantItemShimmer(),
-                            ),
-                          ],
-                        );
-                      } else if (state is RestaurantsLoaded) {
-                        _restaurants.clear();
-                        _restaurants.addAll(state.restaurants);
-                      } else if (state is RestaurantsLoadingError) {
-                        return Center(
-                          child: Text(state.message),
-                        );
-                      }
-
-                      // return list of restaurants horizontally, only 2 items
-                      return Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          //  if not empty show restaurant item
-                          if (_restaurants.isNotEmpty)
-                            Expanded(
-                              child: RestaurantItem(
-                                restaurant: _restaurants[0],
-                              ),
-                            ),
-                          const SizedBox(width: 20),
-                          if (_restaurants.length > 1)
-                            Expanded(
-                              child: RestaurantItem(
-                                restaurant: _restaurants[1],
-                              ),
-                            ),
-                        ],
-                      );
-                    },
-                  ),
-                  const SizedBox(height: 20),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        "Popular Foods",
+                        "Menu",
                         style: CustomTextStyle.size16Weight400Text(),
                       ),
                       TextButton(

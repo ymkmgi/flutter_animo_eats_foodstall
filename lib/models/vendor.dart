@@ -1,73 +1,81 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:equatable/equatable.dart';
 import 'package:hive/hive.dart';
 
 // ignore: must_be_immutable
-class Restaurant extends Equatable {
+class Vendor extends Equatable {
   final String name;
+  final String email;
+  final String phone;
   final String location;
-  final DateTime createdAt;
   final String? image;
-  final String? description;
+  final DateTime createdAt;
 
   // id is the document id
   String? id;
 
-  Restaurant({
+  Vendor({
     required this.name,
+    required this.email,
+    required this.phone,
     required this.location,
     required this.createdAt,
     this.image,
-    this.description,
   });
 
-  factory Restaurant.fromMap(Map<String, dynamic> map) {
-    return Restaurant(
+  factory Vendor.fromMap(Map<String, dynamic> map) {
+    return Vendor(
       name: map['name'],
-      image: map['image'],
+      email: map['email'],
+      phone: map['phone'],
       location: map['location'],
-      description: map['description'],
+      image: map['image'],
       createdAt: map['createdAt'].toDate(),
     );
   }
 
   Map<String, dynamic> toMap() {
     return {
-      'id': id,
       'name': name,
-      'image': image,
+      'id': name,
+      'email': email,
+      'phone': phone,
       'location': location,
-      'description': description,
+      'image': image,
       'createdAt': createdAt,
     };
   }
 
-    factory Restaurant.fromHive() {
+  factory Vendor.fromHive() {
     var box = Hive.box('myBox');
-    return Restaurant(
+    return Vendor(
       name: box.get('name', defaultValue: ''),
+      email: box.get('email', defaultValue: ''),
+      phone: box.get('phone', defaultValue: ''),
       location: box.get('location', defaultValue: ''),
-      description: box.get('description', defaultValue: ''),
       image: box.get('image', defaultValue: null),
       createdAt: box.get('createdAt', defaultValue: DateTime.now()),
     );
   }
 
-  // restaurant is favorite
-  bool get isFavorite {
-    final box = Hive.box('myBox');
-    final favorites = box.get('favoriteRestaurants') as List<dynamic>?;
-    if (favorites == null || favorites.isEmpty) return false;
-    DocumentReference ref = FirebaseFirestore.instance.doc('/restaurants/$id');
-    return favorites.contains(ref);
+  Future<void> saveToHive() async {
+    var box = Hive.box('myBox');
+
+    box.put('name', name);
+    box.put('id', name);
+    box.put('email', email);
+    box.put('phone', phone);
+    box.put('location', location);
+    box.put('image', image);
+    box.put('createdAt', createdAt);
   }
 
   @override
   List<Object?> get props => [
         name,
-        image,
+        email,
+        phone,
         location,
-        description,
+        image,
         createdAt,
       ];
 }
