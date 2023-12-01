@@ -17,6 +17,27 @@ class FirestoreDatabase {
         .set(restaurantData);
   }
 
+  Future<QuerySnapshot> getCollectionWithPaginationAndQuery(
+    String collectionName,
+    int limit,
+    DocumentSnapshot? documentSnapshot,
+    String queryField,
+    Object queryValue,
+  ) async {
+    Query query = _firebaseFirestore
+        .collection(collectionName)
+        .where(queryField, isEqualTo: queryValue);
+
+    if (documentSnapshot == null) {
+      return await query.limit(limit).get();
+    } else {
+      return await query
+          .limit(limit)
+          .startAfterDocument(documentSnapshot)
+          .get();
+    }
+  }
+
   Future<void> addDocumentWithId(
       String collectionPath, String docId, Map<String, dynamic> data) async {
     await _firebaseFirestore.collection(collectionPath).doc(docId).set(data);

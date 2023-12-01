@@ -30,7 +30,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     BlocProvider.of<FoodBloc>(context).add(
-      LoadFoods(
+      LoadFoodsFromVendor(
         limit: _foodLimit,
         lastDocument: null,
       ),
@@ -217,18 +217,25 @@ class _HomeScreenState extends State<HomeScreen> {
                         "Menu",
                         style: CustomTextStyle.size16Weight400Text(),
                       ),
-                      TextButton(
+                      ElevatedButton(
                         onPressed: () {
-                          Navigator.pushNamed(context, "/foods");
+                          // Define the action to be performed when the button is pressed
+                          // For example, navigate to a screen for adding a new food item
+                          // Navigator.pushNamed(context, "/addFood");
                         },
-                        style: TextButton.styleFrom(),
+                        style: ElevatedButton.styleFrom(
+                          // You can customize the button style here
+                          foregroundColor: Colors.white,
+                          backgroundColor:
+                              AppColors.secondaryDarkColor, // Text color
+                        ),
                         child: Text(
-                          "View More",
+                          "Add",
                           style: CustomTextStyle.size14Weight400Text(
-                            AppColors.secondaryDarkColor,
+                            Colors.white,
                           ),
                         ),
-                      ),
+                      )
                     ],
                   ),
                   const SizedBox(height: 10),

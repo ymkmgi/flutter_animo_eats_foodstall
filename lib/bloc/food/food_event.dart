@@ -3,6 +3,13 @@ part of 'food_bloc.dart';
 @immutable
 abstract class FoodEvent {}
 
+class LoadFoodsFromVendor extends FoodEvent {
+  final int limit;
+  final DocumentSnapshot? lastDocument;
+
+  LoadFoodsFromVendor({required this.limit, this.lastDocument});
+}
+
 class LoadFoods extends FoodEvent {
   // limit, lastDocument
   final int limit;

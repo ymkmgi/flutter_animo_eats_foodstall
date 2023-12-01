@@ -63,5 +63,24 @@ class FoodBloc extends Bloc<FoodEvent, FoodState> {
         emit(OrderCountError(message: e.toString()));
       }
     });
+    on<LoadFoodsFromVendor>((event, emit) async {
+      emit(FoodFetching());
+      try {
+        Map<String, dynamic> map = await foodRepository.fetchFoodsFromVendor(
+          event.limit,
+          event.lastDocument,
+        );
+        emit(
+          FoodFetched(
+            foods: map["foods"] as List<Food>,
+            lastDocument: map["lastDocument"] as DocumentSnapshot?,
+          ),
+        );
+      } catch (e, s) {
+        debugPrint(e.toString());
+        debugPrint(s.toString());
+        emit(FoodError(message: e.toString()));
+      }
+    });
   }
 }
